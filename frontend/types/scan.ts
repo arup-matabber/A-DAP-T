@@ -1,0 +1,114 @@
+export type Severity = 'Critical' | 'High' | 'Medium' | 'Low' | 'critical' | 'high' | 'medium' | 'low' | string;
+
+export type Finding = {
+  id?: string;
+  title?: string;
+  category?: string;
+  severity?: Severity;
+  file?: string;
+  line?: number | string | null;
+  description?: string;
+  why_it_matters?: string;
+  suggested_fix?: string;
+  evidence?: string;
+};
+
+export type AttackSimulation = {
+  finding_id?: string;
+  title?: string;
+  attack_goal?: string;
+  malicious_input?: string;
+  weakness_exploited?: string;
+  expected_behavior?: string;
+  impact?: string;
+  required_fix?: string;
+  risk_level?: string;
+  simulation_type?: string;
+  file?: string;
+  line?: number | string | null;
+  evidence?: string;
+  location?: string;
+  guardrail?: string;
+  priority_score?: number;
+  preconditions?: string[];
+  attack_steps?: string[];
+  detection_signal?: string;
+  safe_test_note?: string;
+};
+
+export type PatchPreview = {
+  finding_id?: string;
+  title?: string;
+  file?: string;
+  patch_type?: string;
+  patch_filename?: string;
+  copy_label?: string;
+  download_label?: string;
+  before?: string;
+  after?: string;
+  diff?: string;
+  explanation?: string;
+  confidence?: string;
+  manual_review_required?: boolean;
+  line?: number | string | null;
+  language?: string;
+  apply_strategy?: string;
+  estimated_effort?: string;
+  risk_reduction?: string;
+  affected_controls?: string[];
+  validation_steps?: string[];
+  review_notes?: string[];
+};
+
+export type DeploymentGate = {
+  decision?: 'ALLOW' | 'REVIEW' | 'BLOCK' | string;
+  decision_badge?: string;
+  summary?: string;
+  decision_reason?: string;
+  required_action?: string;
+  minimum_safety_score?: number;
+  safety_score?: number;
+  gate_score?: number;
+  blockers?: string[];
+  next_actions?: string[];
+  recommended_policy?: Record<string, unknown>;
+  category_blocker_counts?: Record<string, number>;
+  workflow_filename?: string;
+  policy_filename?: string;
+  github_actions_yaml?: string;
+  policy_json?: string;
+  download_assets?: Array<{ filename?: string; label?: string; content_type?: string }>;
+  ci_secret_requirements?: string[];
+  severity_counts?: Record<string, number>;
+};
+
+export type ScanReport = {
+  project_name?: string;
+  scan_type?: string;
+  repo_url?: string;
+  repo_owner?: string;
+  repo_name?: string;
+  repo_branch?: string;
+  safety_score?: number;
+  status?: string;
+  summary?: Record<string, number>;
+  category_scores?: Record<string, number>;
+  findings?: Finding[];
+  attack_simulations?: AttackSimulation[];
+  patches?: PatchPreview[];
+  deployment_gate?: DeploymentGate | null;
+  graph?: { nodes?: unknown[]; edges?: unknown[] } | Record<string, unknown>;
+  attack_replay?: unknown[];
+  remediation_checklist?: unknown[];
+  ai_summary?: string;
+  ai_report_summary?: string;
+  ai_remediation_plan?: string[];
+  ai_next_steps?: string[];
+  ai_enrichment_status?: string;
+  saved_report?: boolean;
+  report_id?: string | null;
+  id?: string | null;
+  created_at?: string | null;
+  timestamp?: string | null;
+  upload_name?: string | null;
+};
