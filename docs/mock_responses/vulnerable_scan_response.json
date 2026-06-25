@@ -1,0 +1,197 @@
+{
+  "project_name": "vulnerable-support-agent",
+  "scan_type": "demo_vulnerable",
+  "safety_score": 28,
+  "status": "Critical Risk",
+  "summary": {
+    "critical": 3,
+    "high": 4,
+    "medium": 2,
+    "low": 1
+  },
+  "category_scores": {
+    "prompt_injection": 85,
+    "secret_exposure": 90,
+    "tool_permission": 82,
+    "human_approval": 88,
+    "data_exposure": 72,
+    "auditability": 80
+  },
+  "findings": [
+    {
+      "title": "Hardcoded Gemini API key pattern found",
+      "severity": "Critical",
+      "category": "Secret Exposure Risk",
+      "file": "sample_agents/vulnerable-support-agent/config.py",
+      "line": 4,
+      "why_it_matters": "Hardcoded API keys can be leaked through source control and may allow unauthorized model or service usage.",
+      "suggested_fix": "Move API keys to environment variables and keep .env files out of Git."
+    },
+    {
+      "title": "Hardcoded JWT secret found",
+      "severity": "High",
+      "category": "Secret Exposure Risk",
+      "file": "sample_agents/vulnerable-support-agent/config.py",
+      "line": 5,
+      "why_it_matters": "JWT secrets should not be stored in source code because they can be used to forge or tamper with tokens.",
+      "suggested_fix": "Load JWT secrets from a secure environment variable or secret manager."
+    },
+    {
+      "title": "Refund tool can be called without human approval",
+      "severity": "Critical",
+      "category": "Human Approval Risk",
+      "file": "sample_agents/vulnerable-support-agent/tools.py",
+      "line": 18,
+      "why_it_matters": "Refunds are high-impact business actions and should not be directly controlled by model output.",
+      "suggested_fix": "Add an approval_required or approved_by check before executing refund actions."
+    },
+    {
+      "title": "Agent has access to internal policy content",
+      "severity": "High",
+      "category": "Prompt Injection Risk",
+      "file": "sample_agents/vulnerable-support-agent/tools.py",
+      "line": 12,
+      "why_it_matters": "A prompt injection attempt may cause the agent to reveal hidden policy or system instruction content.",
+      "suggested_fix": "Prevent internal policy text from being returned directly to end users."
+    },
+    {
+      "title": "Customer record is returned without masking",
+      "severity": "High",
+      "category": "Data Exposure Risk",
+      "file": "sample_agents/vulnerable-support-agent/tools.py",
+      "line": 6,
+      "why_it_matters": "Customer records may contain personal data, support notes, and sensitive account information.",
+      "suggested_fix": "Return only the minimum required fields and mask email, phone, and sensitive notes."
+    },
+    {
+      "title": "Email sending tool lacks confirmation gate",
+      "severity": "High",
+      "category": "Tool Permission Risk",
+      "file": "sample_agents/vulnerable-support-agent/tools.py",
+      "line": 25,
+      "why_it_matters": "Model-controlled outbound emails can create incorrect customer communication or social engineering risk.",
+      "suggested_fix": "Require explicit confirmation before sending customer-facing emails."
+    },
+    {
+      "title": "No audit log found for tool calls",
+      "severity": "High",
+      "category": "Auditability Risk",
+      "file": "sample_agents/vulnerable-support-agent/agent.py",
+      "line": 1,
+      "why_it_matters": "Without audit logs, teams cannot investigate what action the agent performed or why.",
+      "suggested_fix": "Log tool name, input parameters, approval status, timestamp, and result."
+    },
+    {
+      "title": "Prompt injection phrase not blocked",
+      "severity": "Medium",
+      "category": "Prompt Injection Risk",
+      "file": "sample_agents/vulnerable-support-agent/agent.py",
+      "line": 8,
+      "why_it_matters": "Prompts such as 'ignore previous instructions' are common attempts to override agent behavior.",
+      "suggested_fix": "Detect suspicious instruction override patterns and route them to refusal or review."
+    },
+    {
+      "title": "Agent combines user input with privileged actions",
+      "severity": "Medium",
+      "category": "Tool Permission Risk",
+      "file": "sample_agents/vulnerable-support-agent/agent.py",
+      "line": 12,
+      "why_it_matters": "User-controlled input should not directly influence high-impact tool calls.",
+      "suggested_fix": "Separate untrusted user input from privileged tool execution logic."
+    },
+    {
+      "title": "Demo customer data stored in project files",
+      "severity": "Low",
+      "category": "Data Exposure Risk",
+      "file": "sample_agents/vulnerable-support-agent/customer_data.json",
+      "line": 1,
+      "why_it_matters": "Even demo data should be clearly fake and minimized to avoid unsafe development habits.",
+      "suggested_fix": "Use fake, minimal, clearly labelled demo records."
+    }
+  ],
+  "graph": {
+    "nodes": [
+      {
+        "id": "user_prompt",
+        "label": "User Prompt",
+        "type": "input",
+        "risk": "high"
+      },
+      {
+        "id": "llm_agent",
+        "label": "Support Agent",
+        "type": "agent",
+        "risk": "high"
+      },
+      {
+        "id": "customer_data",
+        "label": "Customer Data",
+        "type": "data",
+        "risk": "high"
+      },
+      {
+        "id": "internal_policy",
+        "label": "Internal Policy",
+        "type": "data",
+        "risk": "high"
+      },
+      {
+        "id": "issue_refund",
+        "label": "issue_refund()",
+        "type": "tool",
+        "risk": "critical"
+      },
+      {
+        "id": "send_email",
+        "label": "send_email()",
+        "type": "tool",
+        "risk": "high"
+      }
+    ],
+    "edges": [
+      {
+        "source": "user_prompt",
+        "target": "llm_agent",
+        "label": "controls input"
+      },
+      {
+        "source": "llm_agent",
+        "target": "customer_data",
+        "label": "reads unmasked data"
+      },
+      {
+        "source": "llm_agent",
+        "target": "internal_policy",
+        "label": "reads internal policy"
+      },
+      {
+        "source": "llm_agent",
+        "target": "issue_refund",
+        "label": "calls without approval"
+      },
+      {
+        "source": "llm_agent",
+        "target": "send_email",
+        "label": "sends without confirmation"
+      }
+    ]
+  },
+  "attack_replay": [
+    "Malicious prompt received",
+    "Agent accepts fake admin role",
+    "Agent reads internal refund policy",
+    "Agent accesses customer record",
+    "Agent calls issue_refund()",
+    "No human approval gate found",
+    "No audit trail found for the action",
+    "Critical risk flagged"
+  ],
+  "remediation_checklist": [
+    "Move secrets to environment variables.",
+    "Add human approval before refund execution.",
+    "Mask customer data before returning it to the agent.",
+    "Block or review prompt injection attempts.",
+    "Add audit logging for tool calls.",
+    "Require confirmation before sending customer-facing emails."
+  ]
+}
