@@ -1,0 +1,140 @@
+{
+  "project_name": "secured-support-agent",
+  "scan_type": "demo_secured",
+  "safety_score": 86,
+  "status": "Low Risk",
+  "summary": {
+    "critical": 0,
+    "high": 0,
+    "medium": 2,
+    "low": 2
+  },
+  "category_scores": {
+    "prompt_injection": 22,
+    "secret_exposure": 10,
+    "tool_permission": 18,
+    "human_approval": 12,
+    "data_exposure": 20,
+    "auditability": 15
+  },
+  "findings": [
+    {
+      "title": "Secrets are loaded from environment variables",
+      "severity": "Low",
+      "category": "Secret Exposure Risk",
+      "file": "sample_agents/secured-support-agent/config.py",
+      "line": 3,
+      "why_it_matters": "Environment-based secret loading reduces the chance of committing real credentials.",
+      "suggested_fix": "Continue keeping secrets outside source control and document required environment variables."
+    },
+    {
+      "title": "Refund action is routed through human approval",
+      "severity": "Low",
+      "category": "Human Approval Risk",
+      "file": "sample_agents/secured-support-agent/tools.py",
+      "line": 22,
+      "why_it_matters": "Human review reduces the risk of model-controlled financial or business actions.",
+      "suggested_fix": "Keep approval checks mandatory for all high-impact tools."
+    },
+    {
+      "title": "Customer data is masked before use",
+      "severity": "Low",
+      "category": "Data Exposure Risk",
+      "file": "sample_agents/secured-support-agent/tools.py",
+      "line": 10,
+      "why_it_matters": "Masking prevents unnecessary exposure of customer identifiers to the agent or UI.",
+      "suggested_fix": "Continue returning only the minimum fields needed for the task."
+    },
+    {
+      "title": "Prompt injection detection uses basic keyword rules",
+      "severity": "Medium",
+      "category": "Prompt Injection Risk",
+      "file": "sample_agents/secured-support-agent/agent.py",
+      "line": 8,
+      "why_it_matters": "Keyword-based detection is useful for demos but can miss obfuscated attacks.",
+      "suggested_fix": "Add layered controls such as instruction hierarchy, tool-level authorization, and stronger policy checks."
+    }
+  ],
+  "graph": {
+    "nodes": [
+      {
+        "id": "user_prompt",
+        "label": "User Prompt",
+        "type": "input",
+        "risk": "medium"
+      },
+      {
+        "id": "llm_agent",
+        "label": "Support Agent",
+        "type": "agent",
+        "risk": "medium"
+      },
+      {
+        "id": "masked_customer_data",
+        "label": "Masked Customer Data",
+        "type": "data",
+        "risk": "low"
+      },
+      {
+        "id": "human_review",
+        "label": "Human Review Gate",
+        "type": "approval",
+        "risk": "low"
+      },
+      {
+        "id": "audit_log",
+        "label": "Audit Log",
+        "type": "control",
+        "risk": "low"
+      },
+      {
+        "id": "issue_refund",
+        "label": "issue_refund()",
+        "type": "tool",
+        "risk": "medium"
+      }
+    ],
+    "edges": [
+      {
+        "source": "user_prompt",
+        "target": "llm_agent",
+        "label": "untrusted input"
+      },
+      {
+        "source": "llm_agent",
+        "target": "masked_customer_data",
+        "label": "reads masked data"
+      },
+      {
+        "source": "llm_agent",
+        "target": "human_review",
+        "label": "routes risky action"
+      },
+      {
+        "source": "human_review",
+        "target": "issue_refund",
+        "label": "approval required"
+      },
+      {
+        "source": "issue_refund",
+        "target": "audit_log",
+        "label": "action logged"
+      }
+    ]
+  },
+  "attack_replay": [
+    "Malicious prompt received",
+    "Agent detects suspicious instruction pattern",
+    "Sensitive customer data remains masked",
+    "Refund request is routed to human approval",
+    "Tool action is logged through audit_log()",
+    "Direct unsafe execution is blocked",
+    "Risk reduced"
+  ],
+  "remediation_checklist": [
+    "Strengthen prompt injection detection beyond simple keywords.",
+    "Keep approval checks mandatory for high-impact actions.",
+    "Continue masking sensitive customer data.",
+    "Maintain audit logs for all tool calls."
+  ]
+}
