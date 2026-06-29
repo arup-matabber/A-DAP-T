@@ -1,0 +1,22 @@
+{
+  "customers": [
+    {
+      "user_id": 102,
+      "name": "Riya Sharma",
+      "email": "riya.demo@example.com",
+      "plan": "Premium",
+      "last_order_id": "ORD-7781",
+      "refund_eligible": true,
+      "support_notes": "Customer reported failed billing twice. Priority customer."
+    },
+    {
+      "user_id": 205,
+      "name": "Aman Verma",
+      "email": "aman.demo@example.com",
+      "plan": "Basic",
+      "last_order_id": "ORD-8820",
+      "refund_eligible": false,
+      "support_notes": "Previous refund request rejected."
+    }
+  ]
+}
