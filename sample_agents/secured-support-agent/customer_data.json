@@ -1,0 +1,13 @@
+{
+  "customers": [
+    {
+      "user_id": 102,
+      "name": "Riya Sharma",
+      "email": "ri***@example.com",
+      "plan": "Premium",
+      "last_order_id": "ORD-7781",
+      "refund_eligible": true,
+      "support_notes": "Masked for privacy."
+    }
+  ]
+}
